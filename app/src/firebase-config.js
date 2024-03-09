@@ -9,7 +9,7 @@ const firebaseConfig = {
   databaseURL: "https://realtime-iot-58104-default-rtdb.firebaseio.com",
   projectId: "realtime-iot-58104",
   storageBucket: "realtime-iot-58104.appspot.com",
-  messagingSenderId: "592292999074",
+  messagingSenderId: "59229299074",
   appId: "1:592292999074:web:5750081687b013375a4cfb",
   measurementId: "G-YH9ZQRPE7W",
 };
@@ -33,13 +33,12 @@ export const generateToken = async () => {
 
 export const sendNotification = async (title, body) => {
   const token = localStorage.getItem("fcmToken"); // Retrieve stored token
-  const topic = "news";
+  const topic = "news"; // Replace with topic if using topics (optional)
 
   try {
     const response = await axios.post(
       "http://localhost:3000/sendNotification",
       {
-        topic, // Include the topic name here
         token,
         title,
         body,
@@ -51,15 +50,18 @@ export const sendNotification = async (title, body) => {
       }
     );
 
-
-    //   console.log(data.message, data.response || data.error);
   } catch (error) {
     console.error("Error sending notification:", error);
   }
 };
-
-// Handle incoming messages (optional)
-onMessage((payload) => {
+onMessage(messaging, (payload) => {
   console.log("Message received. ", payload);
-  // Optionally show a foreground notification
+  // Show a notification
+  if (!("Notification" in window)) {
+    console.log("This browser does not support system notifications");
+  } else if (Notification.permission === "granted") {
+    new Notification(payload.notification.title, {
+      body: payload.notification.body,
+    });
+  }
 });

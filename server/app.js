@@ -1,17 +1,9 @@
 const express = require("express");
 const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
-const cors = require("cors"); //
-
 const app = express();
-
-app.use(cors({
-  origin: 'http://localhost:5173' // Allow requests from this origin
-}));
-app.use(express.json());
-app.use(bodyParser.json());
-
-// Initialize the Firebase Admin SDK with your service account details
+// admin.messaging().send(message);
+// Replace with the path to your service account key file
 const serviceAccount = {
   type: "service_account",
   project_id: "realtime-iot-58104",
@@ -30,35 +22,34 @@ const serviceAccount = {
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://realtime-iot-58104-default-rtdb.firebaseio.com", // Your database URL here
+  databaseURL: "https://realtime-iot-58104-default-rtdb.firebaseio.com",
 });
 
+app.use(bodyParser.json());
 
-
-
-
-// Example POST endpoint for sending a notification
-app.post("/sendNotification", async (req, res) => {
-  const { token, title, body } = req.body; // Assume these are passed in the request body
-
+app.post("/sendNotification", (req, res) => {
   const message = {
     notification: {
-      title: title,
-      body: body,
+      title: req.body.title,
+      body: req.body.body,
     },
-    token: token, // Token of the device you want to send the notification to
+    token: req.body.token,
   };
-  
 
-  try {
-    const response = await admin.messaging().send(message);
-    console.log("Successfully sent message:", response);
-    res.json({ success: true, response });
-  } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  admin
+    .messaging()
+    .send(message)
+    .then((response) => {
+      console.log("Successfully sent message:", response);
+      return res.status(200).json({
+        message: "Successfully sent message",
+        token: req.body.token,
+      });
+    })
+    .catch((error) => {
+      console.log("Error sending message:", error);
+      res.status(400).send(error);
+    });
 });
 
-// The server is started on port 3000
 app.listen(3000, () => console.log("Server started on port 3000"));
