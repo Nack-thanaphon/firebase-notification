@@ -37,7 +37,7 @@ export const sendNotification = async (title, body) => {
 
   try {
     const response = await axios.post(
-      "http://localhost:3000/sendNotification",
+      "https://notification-service-p509.onrender.com/sendNotification",
       {
         token,
         title,

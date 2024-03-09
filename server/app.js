@@ -2,6 +2,8 @@ const express = require("express");
 const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
 const app = express();
+const cors = require("cors");
+
 // admin.messaging().send(message);
 // Replace with the path to your service account key file
 const serviceAccount = {
@@ -25,6 +27,12 @@ admin.initializeApp({
   databaseURL: "https://realtime-iot-58104-default-rtdb.firebaseio.com",
 });
 
+const corsOptions = {
+  origin: 'https://inspiring-alfajores-b58385.netlify.app',
+  optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.post("/sendNotification", (req, res) => {
